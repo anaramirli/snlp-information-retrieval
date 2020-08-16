@@ -51,6 +51,7 @@ class IRModel:
         tokenizer = RegexpTokenizer(r'\w+')
         preprocessed = list()
         for t in text:
+            t = t.replace('\\s+', ' ')
             t = t.lower()
             preprocessed.append(tokenizer.tokenize(t))
         return preprocessed
@@ -147,7 +148,13 @@ class IRModel:
         similarity_socres = dict()
         for doc, no in zip(self.documents, self.docno):  # look in pre-processed documents; initialized in tf_idf_weights method
             doc_vec = self.get_vector(query, doc, idf_scores)
-            cosine_sim = np.dot(query_vec, doc_vec) / ( np.sqrt(np.sum(np.square(query_vec))) * np.sqrt(np.sum(np.square(doc_vec))))
+            
+            # caculate the cosine similarity
+            if np.dot(query_vec, doc_vec)!=0:
+                cosine_sim = np.dot(query_vec, doc_vec) / \
+                (np.sqrt(np.sum(np.square(query_vec))) * np.sqrt(np.sum(np.square(doc_vec))))
+            else: cosine_sim = 0
+            
             similarity_socres[no] = cosine_sim
 
         # Sort in descending order
@@ -192,6 +199,8 @@ class IRModel:
                     no += 1
                 patterns.extend(line[1:])
         answers.append(patterns)
+    
+        
         return answers
 
     def is_relevant(self, answers, retrieved_documents):
@@ -203,13 +212,10 @@ class IRModel:
         :return(int): number of relevant documents
         """
         relevant = 0
-
         # Check whether one of the answers is in the document
         for doc in retrieved_documents:
-            for word in doc:
-                if any(re.match(pattern, word) for pattern in answers):
-                    relevant += 1
-                    break
+            if any(re.search(pattern.lower(), " ".join(doc)) for pattern in answers):
+                relevant += 1
 
         return relevant
 
@@ -221,15 +227,13 @@ class IRModel:
         :param sim_scores(list): contains tuples -> [(document number, score),..]
         :param r(int): percentage of relevant documents from the top n retrieved documents
         :return(float): precision value for one query
-        """
-
+        """    
+        
         retrieved = self.find_document(sim_scores)  #  document contents -> [['a', 'malaysian', 'english',], ...]
-        n_retrieved = len(retrieved) * 0.1 * r
-        retrieved = retrieved[: int(n_retrieved)]
+        retrieved = retrieved[: r]
         n_relevant = self.is_relevant(answers, retrieved)     # number of relevant and retrieved documents
-
-        precision = n_relevant / n_retrieved
-
+        precision = n_relevant / r
+        
         return precision
 
     def precisions_mean(self, queries, answers, r=50, n=50):
@@ -277,4 +281,4 @@ if __name__ == '__main__':
     articles = IRModel('data\\trec_documents.xml')
     queries = articles.extract_queries("data\\test_questions.txt")
     answers = articles.extract_answers("data\\patterns.txt")
-    print(articles.precisions_mean(queries, answers))
+    print("\nprecision mean: ", articles.precisions_mean(queries, answers))
