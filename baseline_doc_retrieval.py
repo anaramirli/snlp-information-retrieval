@@ -51,7 +51,6 @@ class IRModel:
         tokenizer = RegexpTokenizer(r'\w+')
         preprocessed = list()
         for t in text:
-            t = t.replace('\\s+', ' ')
             t = t.lower()
             preprocessed.append(tokenizer.tokenize(t))
         return preprocessed
