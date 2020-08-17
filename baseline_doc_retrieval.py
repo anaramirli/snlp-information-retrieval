@@ -198,7 +198,6 @@ class IRModel:
                     no += 1
                 patterns.extend(line[1:])
         answers.append(patterns)
-    
         
         return answers
 
@@ -218,7 +217,7 @@ class IRModel:
 
         return relevant
 
-    def precision(self, answers, sim_scores, r=50):
+    def precision(self, answers, sim_scores):
         """
         Calculate precision for each query
 
@@ -229,32 +228,25 @@ class IRModel:
         """    
         
         retrieved = self.find_document(sim_scores)  #  document contents -> [['a', 'malaysian', 'english',], ...]
-        retrieved = retrieved[: r]
         n_relevant = self.is_relevant(answers, retrieved)     # number of relevant and retrieved documents
-        precision = n_relevant / r
+        precision = n_relevant / len(retrieved)
         
         return precision
 
-    def precisions_mean(self, queries, answers, r=50, n=50):
+    def precisions_mean(self, queries, answers, r=50):
         """
         precision = # relevant and retrieved documents / # retrieved documents
         A document is relevant if it contains the answer
 
         :param queries(list): contains strings of queries
         :param answers(list): list of lists with regex patterns as strings
-        :param r(int): percentage of relevant documents from the top n retrieved documents
-        :param n(int): number of top most relevant documents
+        :param r(int): number of top most relevant documents
         :return(float):
         """
         precisions = list()
         for q, a in zip(queries, answers):
-            print('query:')
-            print(q)
-            print('answer')
-            print(a)
-            similarity_scores = self.similarity_scores(n, q)    # list of tuples ->  [(document number, score),..]
-            precision = self.precision(a, similarity_scores, r)
-            print(precision)
+            similarity_scores = self.similarity_scores(r, q)    # list of tuples ->  [(document number, score),..]; top r retrieved documents
+            precision = self.precision(a, similarity_scores)
             precisions.append(precision)
 
         precisions_mean = sum(precisions) / len(precisions)
