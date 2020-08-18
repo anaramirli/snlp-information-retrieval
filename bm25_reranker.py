@@ -25,7 +25,6 @@ for q in queries:
     baseline_top_1000.append(docs)
 
 print(" Top 1000 from Baseline are prepared....")
-print(baseline_top_1000)
 
 # Calculate scores via bm25
 bm25 = BM25Okapi(baseline_top_1000)
@@ -34,7 +33,9 @@ for q, docs in zip(tokenized_queries, baseline_top_1000):
    bm25 = BM25Okapi(docs)
    top_50 = bm25.get_top_n(q, docs, n=50)
    bm25_top_50.append(top_50)
+   print(top_50)
 
 # Return the top 50 documents based on the top 1000 documents returned in (a)
+# for all queries
 print(bm25_top_50)
 
