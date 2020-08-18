@@ -17,7 +17,7 @@ answers = articles.extract_answers("data\\patterns.txt")    # list of lists cont
 # Use baseline model and return the top 1000 documents given a query
 baseline_top_1000 = list()   # top 1000 documents for all queries -> [['a malaysian english', '...'], ...]
 for q in queries:
-    scores = articles.similarity_scores(1000, q)  # top 1000 documents for each query -> [(document number, score),..]
+    scores = articles.similarity_scores(q)[:1000]  # top 1000 documents for each query -> [(document number, score),..]
     documents = articles.find_document(scores)  # Get document content by document number -> [['a', 'malaysian', 'english',], ...]
     docs = list()
     for doc in documents:
@@ -28,14 +28,20 @@ print(" Top 1000 from Baseline are prepared....")
 
 # Calculate scores via bm25
 bm25 = BM25Okapi(baseline_top_1000)
+# top 50 documents based on the top 1000 documents returned in (a) for all queries
 bm25_top_50 = list()    # list of lists with ranked documents as strings -> [['It is quite windy in London', '...'], ...]
+tokenized_bm25_top_50 = list()
 for q, docs in zip(tokenized_queries, baseline_top_1000):
-   bm25 = BM25Okapi(docs)
-   top_50 = bm25.get_top_n(q, docs, n=50)
-   bm25_top_50.append(top_50)
-   print(top_50)
+    bm25 = BM25Okapi(docs)
+    top_50 = bm25.get_top_n(q, docs, n=50)
+    bm25_top_50.append(top_50)
+    tokens = list()
+    for doc in top_50:
+        tokens.append(doc.split())
+    tokenized_bm25_top_50.append(tokens)
+    print(tokens)
 
-# Return the top 50 documents based on the top 1000 documents returned in (a)
-# for all queries
-print(bm25_top_50)
+# Mean of the precisions
+print('Calculating mean of the precisions...')
+print('\nprecision mean:', articles.precisions_mean(queries, answers, tokenized_bm25_top_50)) # precision mean: 0.019
 

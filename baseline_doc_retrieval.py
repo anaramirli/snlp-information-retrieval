@@ -128,11 +128,10 @@ class IRModel:
 
         return vector
 
-    def similarity_scores(self, n, query):
+    def similarity_scores(self, query):
         """
-        Return top 50 most relevant docments for the given query
+        Return all relevant documents for the given query
 
-        :param n(int): top n most relevant documents for a query along with their scores
         :param query(str):
         :return(list): list of tuples; contains document number with its score in descending order -> [(document number, score),..]
         """
@@ -159,7 +158,7 @@ class IRModel:
         # Sort in descending order
         similarity_socres = sorted(similarity_socres.items(), key=operator.itemgetter(1), reverse=True)
 
-        return similarity_socres[:n]
+        return similarity_socres
 
     def extract_queries(self, path2queries):
         """
@@ -217,36 +216,35 @@ class IRModel:
 
         return relevant
 
-    def precision(self, answers, sim_scores):
+    def precision(self, answers, documents, r=50):
         """
         Calculate precision for each query
 
         :param answers(list): contains strings of regex patterns
-        :param sim_scores(list): contains tuples -> [(document number, score),..]
+        :param documents(list): contains lists of tokenized documents -> [['a', 'malaysian', 'english',], ...]
         :param r(int): percentage of relevant documents from the top n retrieved documents
         :return(float): precision value for one query
         """    
-        
-        retrieved = self.find_document(sim_scores)  #  document contents -> [['a', 'malaysian', 'english',], ...]
-        n_relevant = self.is_relevant(answers, retrieved)     # number of relevant and retrieved documents
-        precision = n_relevant / len(retrieved)
+        n_relevant = self.is_relevant(answers, documents[:r])     # number of relevant and retrieved documents
+        precision = n_relevant / r
         
         return precision
 
-    def precisions_mean(self, queries, answers, r=50):
+    def precisions_mean(self, queries, answers, retrieved_docs, r=50):
         """
         precision = # relevant and retrieved documents / # retrieved documents
         A document is relevant if it contains the answer
+        Accept only tokenized documents
 
         :param queries(list): contains strings of queries
         :param answers(list): list of lists with regex patterns as strings
+        :param retrieved_docs(list): ranked retrieved documents for all queries -> [ [['a', 'malaysian', 'english'], [...],...], [[...], [...]], ...]
         :param r(int): number of top most relevant documents
         :return(float):
         """
         precisions = list()
-        for q, a in zip(queries, answers):
-            similarity_scores = self.similarity_scores(r, q)    # list of tuples ->  [(document number, score),..]; top r retrieved documents
-            precision = self.precision(a, similarity_scores)
+        for q, a, docs in zip(queries, answers, retrieved_docs):
+            precision = self.precision(a, docs, r)
             precisions.append(precision)
 
         precisions_mean = sum(precisions) / len(precisions)
@@ -272,4 +270,11 @@ if __name__ == '__main__':
     articles = IRModel('data\\trec_documents.xml')
     queries = articles.extract_queries("data\\test_questions.txt")
     answers = articles.extract_answers("data\\patterns.txt")
-    print("\nprecision mean: ", articles.precisions_mean(queries, answers))
+    retrieved_docs = list()
+    for q in queries:
+        sim_scores = articles.similarity_scores(q)
+        docs = articles.find_document(sim_scores)
+        retrieved_docs.append(docs)
+    print('The documents are ranked for all queries... ')
+    print('Calculating Precisions mean...')
+    print("\nprecision mean: ", articles.precisions_mean(queries, answers, retrieved_docs))     #   precision mean:  0.097
