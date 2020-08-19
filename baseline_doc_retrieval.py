@@ -17,8 +17,8 @@ class IRModel:
         :param docs(str): path to the documents
         """
         # Prepare documents
-        self.docno, documents = self.extract_text(path2docs)
-        self.documents = self.preprocess(documents)
+        self.docno, self.raw_documents = self.extract_text(path2docs)
+        self.documents = self.preprocess(self.raw_documents)
         self.vocab = self.get_vocab(self.documents)
         self.N = len(self.documents)        # total number of documents
 
@@ -251,16 +251,30 @@ class IRModel:
 
         return precisions_mean
 
-    def find_document(self, sim_scores):
+    def find_document(self, document_numbers):
         """
         Find document contents by the documents number
-        :param sim_scores(list): tuples of document number and similarity score in descending order -> [(document number, score),..]
+        :param document_numbers(list): tuples of document number and similarity score in descending order -> [document number1, ...]
         :return(list): list of lists -> [['a', 'malaysian', 'english',], ...]
         """
         documents = list()
-        for doc_no, score in sim_scores:
+        for doc_no in document_numbers:
             idx = self.docno.index(doc_no)
             doc_content = self.documents[idx]
+            documents.append(doc_content)
+
+        return documents
+
+    def find_raw_document(self, document_numbers):
+        """
+        Find raw, unprocessed document contents by the documents number
+        :param document_numbers(list): [document number1, ...]
+        :return(list): raw documents, one document represented as one string -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
+        """
+        documents = list()
+        for doc_no in document_numbers:
+            idx = self.docno.index(doc_no)
+            doc_content = self.raw_documents[idx]
             documents.append(doc_content)
 
         return documents
@@ -273,7 +287,8 @@ if __name__ == '__main__':
     retrieved_docs = list()
     for q in queries:
         sim_scores = articles.similarity_scores(q)
-        docs = articles.find_document(sim_scores)
+        docno = [no for no, score in sim_scores]
+        docs = articles.find_document(docno)
         retrieved_docs.append(docs)
     print('The documents are ranked for all queries... ')
     print('Calculating Precisions mean...')
