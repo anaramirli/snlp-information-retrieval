@@ -83,15 +83,15 @@ print(" Top 1000 from Baseline are prepared....")
 # 3a) Split the top 50 documents into sentences
 # Get raw document contents by document numbers,; 50 document numbers for a given query
 # Preprocessed documents have no periods because of word tokenization and thus the information about end of the sentence within a document gets lost.
-doc_contents = list() # [["raw document 1", "raw document 2. this is a raw document.",...], ...]
-for numbers in docno_1000[:50]:
-    docs = articles.find_raw_document(numbers)
-    doc_contents.append(docs)
+top_50_docs = list() # [["raw document 1", "raw document 2. this is a raw document.",...], ...]
+for numbers in docno_1000:
+    docs = articles.find_raw_document(numbers[:50])
+    top_50_docs.append(docs)
 
 # Split documents with multiple sentences such that each sentence will be treated as a document.
 top_50_doc2sent = list()
 tokenized_top_50_doc2sent = list()
-for docs in doc_contents:   # loop for documents for a given query
+for docs in top_50_docs:   # loop for documents for a given query
     sents = list()  # documents are strings
     tokenized_sents = list()    # documents are list of tokens
     for d in docs:
@@ -112,4 +112,4 @@ for sents, q, a in zip(top_50_sents, queries, answers):
     print(sents)
 
 print(top_50_sents)
-print('\nprecision mean (BM25):', articles.precisions_mean(queries, answers, tokenized_top_50))
+print('\nprecision mean (BM25):', articles.precisions_mean(queries, answers, tokenized_top_50)) # precision mean (BM25): 0.05000000000000002
