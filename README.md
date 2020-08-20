@@ -1,2 +1,2 @@
 # snlp
-Statistical Natural Language Processing
+In this project, the task is to develop and evaluate a two-stage information retrieval model that given a query returns the n most relevant documents and then ranks the sentences within the documents. For the first part, you should implement a baseline document retriever with tf-idf features. To get full credits, in the second part you should improve over the baseline of the document retriever with an advanced approach of your choice. The third part extends the model to return the ranked sentences. The answer to the query should be found in one of the top-ranked sentences.
