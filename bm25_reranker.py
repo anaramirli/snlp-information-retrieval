@@ -87,8 +87,12 @@ if __name__ == '__main__':
     # 3b) Treat the sentences like documents to rank them and return the top 50 sentences ranked with BM25.
     top_50_raw_sents = rerank_bm25(queries_tokenized, top_50_doc2sent_raw, top_50_doc2sent_tokenized)
     for sents_raw, q, a in zip(top_50_raw_sents, queries, answers):
-        print('Query: ', q)
+        print('\nQuery: ', q)
         print('Answwers: ', a)
-        print(sents_raw)
+        print(sents_raw, '\n')
     # Mean of Precisions: 0.07
     print('\nMean of Precisions for the top 50 sentences ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw_sents))
+    
+    # 3c) Evaluate the performance of the model using the mean reciprocal rank function (MRR) on the test queries Q
+    # Mean reciprocal rank: 
+    print('\nMean reciprocal rank for the top 50 sentences ranked with BM25:', articles.mean_reciprocal_rank(answers, top_50_raw_sents))

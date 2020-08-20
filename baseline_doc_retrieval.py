@@ -240,7 +240,7 @@ class IRModel:
         :param answers(list): list of lists with regex patterns as strings
         :param retrieved_docs(list): ranked retrieved documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
         :param r(int): number of top most relevant documents
-        :return(float):
+        :return(float): mean precision
         """
         precisions = list()
         for q, a, docs in zip(queries, answers, retrieved_docs):
@@ -250,6 +250,30 @@ class IRModel:
         precisions_mean = sum(precisions) / len(precisions)
 
         return precisions_mean
+    
+        
+    def mean_reciprocal_rank(self, answers, retrieved_docs):
+        '''
+        Evaluate the performance of your model using the mean reciprocal rank function (MRR)
+        
+        :param answers(list): lists with list of regex patterns as string for each query
+        :param retrieved_docs(list): ranked retrieved documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
+        :return(float): mrr score
+        '''
+        
+        mrr = 0
+        # for each query we have one answer, hence, number wise iterating through the answers is as same as iterating through the query 
+        for query_i, ans in enumerate(answers):
+            for doc_rank, doc in enumerate(retrieved_docs[query_i]):
+                # get the rank of the first relevant sentence for the query q and then do the caculation
+                if any(re.search(pattern, doc) for pattern in ans):
+                    mrr += 1/(doc_rank+1)
+                    break
+                    # if none of the proposed retrived docs are correct, reciprocal rank is 0, thus we do nothing
+
+        mrr /= len(answers)
+
+        return mrr
 
     # def find_document(self, document_numbers):
     #     """
