@@ -204,14 +204,14 @@ class IRModel:
         """
         Count relevant documents for the precision calculation
 
-        :param answers(list): contains regex patterns as strings
-        :param retrievend_documents(list): list of lists containing tokenized documents
+        :param answers(list): contains regex patterns as strings -> [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
+        :param retrievend_documents(list): raw documents as strings -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
         :return(int): number of relevant documents
         """
         relevant = 0
         # Check whether one of the answers is in the document
         for doc in retrieved_documents:
-            if any(re.search(pattern.lower(), " ".join(doc)) for pattern in answers):
+            if any(re.search(pattern, doc) for pattern in answers):
                 relevant += 1
 
         return relevant
@@ -221,7 +221,7 @@ class IRModel:
         Calculate precision for each query
 
         :param answers(list): contains strings of regex patterns
-        :param documents(list): contains lists of tokenized documents -> [['a', 'malaysian', 'english',], ...]
+        :param documents(list): contains strings of raw documents -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
         :param r(int): percentage of relevant documents from the top n retrieved documents
         :return(float): precision value for one query
         """    
@@ -238,7 +238,7 @@ class IRModel:
 
         :param queries(list): contains strings of queries
         :param answers(list): list of lists with regex patterns as strings
-        :param retrieved_docs(list): ranked retrieved documents for all queries -> [ [['a', 'malaysian', 'english'], [...],...], [[...], [...]], ...]
+        :param retrieved_docs(list): ranked retrieved documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
         :param r(int): number of top most relevant documents
         :return(float):
         """
@@ -251,19 +251,19 @@ class IRModel:
 
         return precisions_mean
 
-    def find_document(self, document_numbers):
-        """
-        Find document contents by the documents number
-        :param document_numbers(list): tuples of document number and similarity score in descending order -> [document number1, ...]
-        :return(list): list of lists -> [['a', 'malaysian', 'english',], ...]
-        """
-        documents = list()
-        for doc_no in document_numbers:
-            idx = self.docno.index(doc_no)
-            doc_content = self.documents[idx]
-            documents.append(doc_content)
-
-        return documents
+    # def find_document(self, document_numbers):
+    #     """
+    #     Find document contents by the documents number
+    #     :param document_numbers(list): tuples of document number and similarity score in descending order -> [document number1, ...]
+    #     :return(list): list of lists -> [['a', 'malaysian', 'english',], ...]
+    #     """
+    #     documents = list()
+    #     for doc_no in document_numbers:
+    #         idx = self.docno.index(doc_no)
+    #         doc_content = self.documents[idx]
+    #         documents.append(doc_content)
+    #
+    #     return documents
 
     def find_raw_document(self, document_numbers):
         """
@@ -288,8 +288,9 @@ if __name__ == '__main__':
     for q in queries:
         sim_scores = articles.similarity_scores(q)
         docno = [no for no, score in sim_scores]
-        docs = articles.find_document(docno)
+        docs = articles.find_raw_document(docno)
         retrieved_docs.append(docs)
-    print('The documents are ranked for all queries... ')
+    print('The documents are ranked with the baseline model for all queries... ')
     print('Calculating Precisions mean...')
-    print("\nprecision mean: ", articles.precisions_mean(queries, answers, retrieved_docs))     #   precision mean:  0.097
+    # precision mean:  0.097
+    print("\nMean of Precisions for the top 50 documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs))
