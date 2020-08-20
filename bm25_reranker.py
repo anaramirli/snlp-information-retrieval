@@ -94,5 +94,5 @@ if __name__ == '__main__':
     print('\nMean of Precisions for the top 50 sentences ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw_sents))
     
     # 3c) Evaluate the performance of the model using the mean reciprocal rank function (MRR) on the test queries Q
-    # Mean reciprocal rank: 
+    # Mean reciprocal rank: 0.378
     print('\nMean reciprocal rank for the top 50 sentences ranked with BM25:', articles.mean_reciprocal_rank(answers, top_50_raw_sents))

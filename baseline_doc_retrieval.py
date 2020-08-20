@@ -270,7 +270,6 @@ class IRModel:
                     mrr += 1/(doc_rank+1)
                     break
                     # if none of the proposed retrived docs are correct, reciprocal rank is 0, thus we do nothing
-
         mrr /= len(answers)
 
         return mrr
