@@ -1,6 +1,7 @@
 from baseline_doc_retrieval import *
 from rank_bm25 import BM25Okapi
 import nltk
+import optparse
 
 
 def rerank_bm25(queries, documents, tokenized_docs):
@@ -23,28 +24,25 @@ def rerank_bm25(queries, documents, tokenized_docs):
     return top_50_raw
 
 
-# def sort_docno(scores, document_numbers):
-#
-#     """
-#     Sort the document numbers by descending scores
-#
-#     :param document_numbers(list): contains document number as strings
-#     :param scores(list): contains float numbers
-#     :return (list): sorted document numbers by scores in descending order
-#     """
-#
-#     return [no for score, no in sorted(zip(scores, document_numbers))]
-
 if __name__ == '__main__':
+    # Parse command line arguments
+    optparser = optparse.OptionParser()
+    optparser.add_option("-d", dest="data", default="data\\trec_documents.xml", help="Path to raw documents.")
+    optparser.add_option("-q", dest="queries", default="data\\test_questions.txt", help="Path to raw queries.")
+    optparser.add_option("-a", dest="answers", default="data\\patterns.txt", help="Path to answer patterns.")
+    (opts, _) = optparser.parse_args()
+    path2docs = opts.data
+    path2queries = opts.queries
+    path2answers = opts.answers
 
-    # Preprocess queries
-    articles = IRModel('data\\trec_documents.xml')
-    queries = articles.extract_queries("data\\test_questions.txt") # list of queries as strings
+    # Initialize Information Retrieval Model
+    articles = IRModel(path2docs)
+    queries = articles.extract_queries(path2queries) # list of queries as strings
     queries_tokenized = list()  # [['what', 'does', 'the', 'peugeot', 'company', 'manufacture'], ...]
     for q in queries:
         queries_tokenized.append(articles.preprocess_str(q))
     # Extract answers to all queries
-    answers = articles.extract_answers("data\\patterns.txt")    # [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
+    answers = articles.extract_answers(path2answers)    # [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
 
     # 2a) Use BASELINE model and get the top 1000 documents for each query
     top_1000_raw = list()   # top 1000 documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]

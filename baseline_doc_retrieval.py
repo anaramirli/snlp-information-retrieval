@@ -5,6 +5,7 @@ from collections import Counter
 import operator
 import numpy as np
 import re
+import optparse
 
 
 class IRModel:
@@ -99,7 +100,8 @@ class IRModel:
     def tf(self, term, doc):
         """
         tf scores for one document.
-        tf(term_i, doc) = number of times term_i appears in the document / number of times the most frequent term of the document appears in the document
+        tf(term_i, doc) = number of times term_i appears in the document
+                        / number of times the most frequent term of the document appears in the document
 
         :param term(str):
         :param doc(list): list of tokens
@@ -133,7 +135,8 @@ class IRModel:
         Return all relevant documents for the given query
 
         :param query(str):
-        :return(list): list of tuples; contains document number with its score in descending order -> [(document number, score),..]
+        :return(list): list of tuples; contains document number with its score in descending order
+                        -> [(document number, score),..]
         """
         # pre-process query like a document
         query = self.preprocess_str(query)  # list of tokens
@@ -183,7 +186,8 @@ class IRModel:
         Answers are expressed as regex patterns
 
         :param path2answers(str):
-        :return(list): list of lists containing answers to the queries -> [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
+        :return(list): list of lists containing answers to the queries
+                        -> [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
         """
         no = 1
         answers = list()
@@ -204,8 +208,10 @@ class IRModel:
         """
         Count relevant documents for the precision calculation
 
-        :param answers(list): contains regex patterns as strings -> [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
-        :param retrievend_documents(list): raw documents as strings -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
+        :param answers(list): contains regex patterns as strings
+                                -> [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
+        :param retrievend_documents(list): raw documents as strings
+                                            -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
         :return(int): number of relevant documents
         """
         relevant = 0
@@ -221,7 +227,8 @@ class IRModel:
         Calculate precision for each query
 
         :param answers(list): contains strings of regex patterns
-        :param documents(list): contains strings of raw documents -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
+        :param documents(list): contains strings of raw documents
+                                -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
         :param r(int): percentage of relevant documents from the top n retrieved documents
         :return(float): precision value for one query
         """    
@@ -238,7 +245,8 @@ class IRModel:
 
         :param queries(list): contains strings of queries
         :param answers(list): list of lists with regex patterns as strings
-        :param retrieved_docs(list): ranked retrieved documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
+        :param retrieved_docs(list): ranked retrieved documents for all queries
+                                        -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
         :param r(int): number of top most relevant documents
         :return(float): mean precision
         """
@@ -250,16 +258,16 @@ class IRModel:
         precisions_mean = sum(precisions) / len(precisions)
 
         return precisions_mean
-    
         
     def mean_reciprocal_rank(self, answers, retrieved_docs):
-        '''
+        """
         Evaluate the performance of your model using the mean reciprocal rank function (MRR)
         
         :param answers(list): lists with list of regex patterns as string for each query
-        :param retrieved_docs(list): ranked retrieved documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
+        :param retrieved_docs(list): ranked retrieved documents for all queries
+                                    -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
         :return(float): mrr score
-        '''
+        """
         
         mrr = 0
         # for each query we have one answer, hence, number wise iterating through the answers is as same as iterating through the query 
@@ -274,26 +282,12 @@ class IRModel:
 
         return mrr
 
-    # def find_document(self, document_numbers):
-    #     """
-    #     Find document contents by the documents number
-    #     :param document_numbers(list): tuples of document number and similarity score in descending order -> [document number1, ...]
-    #     :return(list): list of lists -> [['a', 'malaysian', 'english',], ...]
-    #     """
-    #     documents = list()
-    #     for doc_no in document_numbers:
-    #         idx = self.docno.index(doc_no)
-    #         doc_content = self.documents[idx]
-    #         documents.append(doc_content)
-    #
-    #     return documents
-
-
     def find_raw_document(self, document_numbers):
         """
         Find raw, unprocessed document contents by the documents number
         :param document_numbers(list): [document number1, ...]
-        :return(list): raw documents, one document represented as one string -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
+        :return(list): raw documents, one document represented as one string
+                        -> ['JOHN LABATT, the Canadian food and beverage group,...', '...']
         """
         documents = list()
         for doc_no in document_numbers:
@@ -305,9 +299,22 @@ class IRModel:
 
 
 if __name__ == '__main__':
-    articles = IRModel('data\\trec_documents.xml')
-    queries = articles.extract_queries("data\\test_questions.txt")
-    answers = articles.extract_answers("data\\patterns.txt")
+    # Parse command line arguments
+    optparser = optparse.OptionParser()
+    optparser.add_option("-d", dest="data", default="data\\trec_documents.xml", help="Path to raw documents.")
+    optparser.add_option("-q", dest="queries", default="data\\test_questions.txt", help="Path to raw queries.")
+    optparser.add_option("-a", dest="answers", default="data\\patterns.txt", help="Path to answer patterns.")
+    (opts, _) = optparser.parse_args()
+    path2docs = opts.data
+    path2queries = opts.queries
+    path2answers = opts.answers
+
+    # Initialize Information Retrieval Model
+    articles = IRModel(path2docs)
+    queries = articles.extract_queries(path2queries)
+    answers = articles.extract_answers(path2answers)
+
+    # Rank total documents with the baseline model
     retrieved_docs = list()
     for q in queries:
         sim_scores = articles.similarity_scores(q)
@@ -316,7 +323,7 @@ if __name__ == '__main__':
         retrieved_docs.append(docs)
     print('The documents are ranked with the baseline model for all queries... ')
 
-    # Evaluate the baseline model with mean of precisions and MRR
+    # Evaluate the baseline model with mean of precisions at r=50 and MRR
     # Mean of Precisions:  0.097
     print("\nMean of Precisions for the top 50 documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs))
     # Mean reciprocal rank: 0.66
