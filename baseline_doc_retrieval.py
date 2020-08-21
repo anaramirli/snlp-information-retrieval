@@ -288,6 +288,7 @@ class IRModel:
     #
     #     return documents
 
+
     def find_raw_document(self, document_numbers):
         """
         Find raw, unprocessed document contents by the documents number
@@ -314,6 +315,9 @@ if __name__ == '__main__':
         docs = articles.find_raw_document(docno)
         retrieved_docs.append(docs)
     print('The documents are ranked with the baseline model for all queries... ')
-    print('Calculating Precisions mean...')
-    # precision mean:  0.097
+
+    # Evaluate the baseline model with mean of precisions and MRR
+    # Mean of Precisions:  0.097
     print("\nMean of Precisions for the top 50 documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs))
+    # Mean reciprocal rank: 0.66
+    print("\nMRR for the top 50 documents retrieved with the baseline model: ", articles.mean_reciprocal_rank(answers, retrieved_docs))
