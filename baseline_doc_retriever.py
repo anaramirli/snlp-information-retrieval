@@ -315,16 +315,25 @@ if __name__ == '__main__':
     answers = articles.extract_answers(path2answers)
 
     # Rank total documents with the baseline model
-    retrieved_docs = list()
+    retrieved_docs_50 = list()
+    retrieved_docs_total = list()
     for q in queries:
         sim_scores = articles.similarity_scores(q)
         docno = [no for no, score in sim_scores]
-        docs = articles.find_raw_document(docno)
-        retrieved_docs.append(docs)
+        docs_50 = articles.find_raw_document(docno[:50])
+        docs_total = articles.find_raw_document(docno)
+        retrieved_docs_50.append(docs_50)
+        retrieved_docs_total.append(docs_total)
     print('The documents are ranked with the baseline model for all queries... ')
+    print("\nThe total number of the documents for each query is: ", len(retrieved_docs_total[1]))
 
     # Evaluate the baseline model with mean of precisions at r=50 and MRR
-    # Mean of Precisions:  0.097
-    print("\nMean of Precisions for the top 50 documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs))
-    # Mean reciprocal rank: 0.66
-    print("\nMRR for the top 50 documents retrieved with the baseline model: ", articles.mean_reciprocal_rank(answers, retrieved_docs))
+    # Mean of Precisions for the top 50 documents: 0.097
+    print("\nMean of Precisions for the top 50 documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs_total))
+    # Mean of Precisions for all documents:
+    print("\nMean of Precisions for all documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs_total, r=8749))
+
+    # Mean reciprocal rank with the top 50 documents: 0.5913
+    print("\nMRR for the top 50 documents retrieved with the baseline model: ", articles.mean_reciprocal_rank(answers, retrieved_docs_50))
+    # Mean reciprocal rank when taking all documents: 0.592
+    print("\nMRR for all documents retrieved with the baseline model: ", articles.mean_reciprocal_rank(answers, retrieved_docs_total))

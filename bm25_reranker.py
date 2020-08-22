@@ -1,4 +1,4 @@
-from baseline_doc_retrieval import *
+from baseline_doc_retriever import *
 from rank_bm25 import BM25Okapi
 import nltk
 import optparse
@@ -86,10 +86,13 @@ if __name__ == '__main__':
 
     # 3b) Treat the sentences like documents to rank them and return the top 50 sentences ranked with BM25.
     top_50_raw_sents = rerank_bm25(queries_tokenized, top_50_doc2sent_raw, top_50_doc2sent_tokenized)
-    for sents_raw, q, a in zip(top_50_raw_sents, queries, answers):
-        print('\nQuery: ', q)
-        print('Answwers: ', a)
-        print('Raw sentences/documents: ', sents_raw, '\n')
+
+    # Check contents of raw queries, answers and sentences
+    # for sents_raw, q, a in zip(top_50_raw_sents, queries, answers):
+    #     print('\nQuery: ', q)
+    #     print('Answwers: ', a)
+    #     print('Raw sentences/documents: ', sents_raw, '\n')
+
     # Mean of Precisions: 0.07
     print('\nMean of Precisions for the top 50 sentences ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw_sents))
 
