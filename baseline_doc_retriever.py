@@ -330,10 +330,10 @@ if __name__ == '__main__':
     # Evaluate the baseline model with mean of precisions at r=50 and MRR
     # Mean of Precisions for the top 50 documents: 0.097
     print("\nMean of Precisions for the top 50 documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs_total))
-    # Mean of Precisions for all documents:
-    print("\nMean of Precisions for all documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs_total, r=8749))
-
     # Mean reciprocal rank with the top 50 documents: 0.5913
     print("\nMRR for the top 50 documents retrieved with the baseline model: ", articles.mean_reciprocal_rank(answers, retrieved_docs_50))
+
+    # Mean of Precisions for all documents: 0.013
+    print("\nMean of Precisions for all documents retrieved with the baseline model: ", articles.precisions_mean(queries, answers, retrieved_docs_total, r=8749))
     # Mean reciprocal rank when taking all documents: 0.592
     print("\nMRR for all documents retrieved with the baseline model: ", articles.mean_reciprocal_rank(answers, retrieved_docs_total))

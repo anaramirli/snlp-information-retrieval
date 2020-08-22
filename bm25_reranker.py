@@ -66,7 +66,7 @@ if __name__ == '__main__':
     print('Calculating Mean of Precisions for the top 50 documents ranked with BM25...')
     # Mean of Precisions:  0.104
     print('\nMean of Precisions for the top 50 documents ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw))
-    # Mean reciprocal rank: 0.59
+    # Mean reciprocal rank: 0.66
     print("\nMean reciprocal rank for the top 50 documents ranked with BM25: ", articles.mean_reciprocal_rank(answers, top_50_raw))
 
     # 3a) Split the top 50 documents into sentences.
