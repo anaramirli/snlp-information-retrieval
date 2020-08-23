@@ -3,25 +3,31 @@ from rank_bm25 import BM25Okapi
 import nltk
 import optparse
 
-
-def rerank_bm25(queries, documents, tokenized_docs):
+class BM25Model(object):
     """
-    Rank documents using BM25 method.
-    Return top 50 documents for all queries.
-
-    :param queries(list): contains list of tokenized queries -> [['what', 'does', 'the', 'peugeot', 'company', 'manufacture'], ...]
-    :param documents(list): raw documents as strings for each query -> [['A Malaysian English', '...'], ...]
-    :param tokenized_docs(list): tokenized documents for each query -> [[['a', 'malaysian', 'english', '...'], ...]
-    :return (list): contains lists with ranked raw documents as strings -> [['It is quite windy in London', '...'], ...]
+    This class is used to rank documents using BM25 method. in order to return top 50 documents for all queries.
     """
 
-    top_50_raw = list()
-    for q, docs_raw, docs_tokens in zip(queries, documents, tokenized_docs):
-        bm25 = BM25Okapi(docs_tokens, k1=1.5, b=0.05)
-        top_ranked = bm25.get_top_n(q, docs_raw, n=50)
-        top_50_raw.append(top_ranked)
+    def rerank_bm25(self, queries, documents, tokenized_docs, k1=0.75, b=0.05):
+        """
+        Rank documents using BM25 method.
+        Return top 50 documents for all queries.
 
-    return top_50_raw
+        :param queries(list): contains list of tokenized queries -> [['what', 'does', 'the', 'peugeot', 'company', 'manufacture'], ...]
+        :param documents(list): raw documents as strings for each query -> [['A Malaysian English', '...'], ...]
+        :param tokenized_docs(list): tokenized documents for each query -> [[['a', 'malaysian', 'english', '...'], ...]
+        :param k1(float): controls how quickly an increase in term frequency results in term-frequency saturation
+        :param b(float): controls how much effect field-length normalization should have
+        :return (list): contains lists with ranked raw documents as strings -> [['It is quite windy in London', '...'], ...]
+        """
+
+        top_50_raw = list()
+        for q, docs_raw, docs_tokens in zip(queries, documents, tokenized_docs):
+            bm25 = BM25Okapi(corpus=docs_tokens, k1=k1, b=b)
+            top_ranked = bm25.get_top_n(q, docs_raw, n=50)
+            top_50_raw.append(top_ranked)
+
+        return top_50_raw
 
 
 if __name__ == '__main__':
@@ -43,6 +49,9 @@ if __name__ == '__main__':
         queries_tokenized.append(articles.preprocess_str(q))
     # Extract answers to all queries
     answers = articles.extract_answers(path2answers)    # [["Young"], ["405", "automobiles?", "diesel\s+motors?" ],...]
+    
+    # Initialize BM25Model
+    bm25model = BM25Model()
 
     # 2a) Use BASELINE model and get the top 1000 documents for each query
     top_1000_raw = list()   # top 1000 documents for all queries -> [['JOHN LABATT, the Canadian food and beverage group,...', '...'],...]
@@ -60,7 +69,7 @@ if __name__ == '__main__':
     print("The top 1000 documents ranked with the Baseline model are prepared....")
 
     # 2b) Use BM25 to get top 50 documents based on the top 1000 documents returned from baseline
-    top_50_raw = rerank_bm25(queries_tokenized, top_1000_raw, top_1000_tokenized)
+    top_50_raw = bm25model.rerank_bm25(queries_tokenized, top_1000_raw, top_1000_tokenized, k1=0.75, b=0.05)
 
     # Evaluate BM25 model with mean of precisions and MRR
     print('\nEvaluating the performance of the BM25 model...')
@@ -85,7 +94,7 @@ if __name__ == '__main__':
         top_50_doc2sent_tokenized.append(sents_tokenized)
 
     # 3b) Treat the sentences like documents to rank them and return the top 50 sentences ranked with BM25.
-    top_50_raw_sents = rerank_bm25(queries_tokenized, top_50_doc2sent_raw, top_50_doc2sent_tokenized)
+    top_50_raw_sents = bm25model.rerank_bm25(queries_tokenized, top_50_doc2sent_raw, top_50_doc2sent_tokenized, k1=0.05, b=0.05)
 
     # Check contents of raw queries, answers and sentences
     # for sents_raw, q, a in zip(top_50_raw_sents, queries, answers):
