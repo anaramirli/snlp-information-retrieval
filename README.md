@@ -30,7 +30,7 @@ In this project, the task is to develop and evaluate a two-stage information ret
 
 	This script is extra, not directly associated with the tasks given in the assignment. This code is used to fine-tune BM25 parameters on both corpuses. Finding best values for parameters, we later use them in bm25_reranker.py when we execute assignment tasks. Beside finding the best result along with corresponding params, furthermore it also plots all the results over different params.
 
-	The whole process takes around 30 minutes. 
+	The whole process takes around 40 minutes. 
 
 #How to run the code, requirements
 
