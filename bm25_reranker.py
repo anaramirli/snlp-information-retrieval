@@ -102,9 +102,9 @@ if __name__ == '__main__':
     #     print('Answwers: ', a)
     #     print('Raw sentences/documents: ', sents_raw, '\n')
 
-    # Mean of Precisions: 0.081
+    # Mean of Precisions: 0.083
     print('\nMean of Precisions for the top 50 sentences ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw_sents))
 
     # 3c) Evaluate the performance of the model using the mean reciprocal rank function (MRR) on the test queries Q
-    # Mean reciprocal rank: 0.525
+    # Mean reciprocal rank: 0.548
     print('\nMean reciprocal rank for the top 50 sentences ranked with BM25:', articles.mean_reciprocal_rank(answers, top_50_raw_sents))
