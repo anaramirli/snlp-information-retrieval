@@ -17,7 +17,7 @@ def rerank_bm25(queries, documents, tokenized_docs):
 
     top_50_raw = list()
     for q, docs_raw, docs_tokens in zip(queries, documents, tokenized_docs):
-        bm25 = BM25Okapi(docs_tokens)
+        bm25 = BM25Okapi(docs_tokens, k1=1.5, b=0.05)
         top_ranked = bm25.get_top_n(q, docs_raw, n=50)
         top_50_raw.append(top_ranked)
 
@@ -63,10 +63,10 @@ if __name__ == '__main__':
     top_50_raw = rerank_bm25(queries_tokenized, top_1000_raw, top_1000_tokenized)
 
     # Evaluate BM25 model with mean of precisions and MRR
-    print('Calculating Mean of Precisions for the top 50 documents ranked with BM25...')
-    # Mean of Precisions:  0.104
+    print('\nEvaluating the performance of the BM25 model...')
+    # Mean of Precisions:  0.122
     print('\nMean of Precisions for the top 50 documents ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw))
-    # Mean reciprocal rank: 0.66
+    # Mean reciprocal rank: 0.712
     print("\nMean reciprocal rank for the top 50 documents ranked with BM25: ", articles.mean_reciprocal_rank(answers, top_50_raw))
 
     # 3a) Split the top 50 documents into sentences.
@@ -93,9 +93,9 @@ if __name__ == '__main__':
     #     print('Answwers: ', a)
     #     print('Raw sentences/documents: ', sents_raw, '\n')
 
-    # Mean of Precisions: 0.07
+    # Mean of Precisions: 0.081
     print('\nMean of Precisions for the top 50 sentences ranked with BM25:', articles.precisions_mean(queries, answers, top_50_raw_sents))
 
     # 3c) Evaluate the performance of the model using the mean reciprocal rank function (MRR) on the test queries Q
-    # Mean reciprocal rank: 0.378
+    # Mean reciprocal rank: 0.525
     print('\nMean reciprocal rank for the top 50 sentences ranked with BM25:', articles.mean_reciprocal_rank(answers, top_50_raw_sents))
