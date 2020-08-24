@@ -23,7 +23,7 @@ The BM25 function has two important parameters, namely k1 and b. As it described
 
 ![](https://github.com/anaramirli/snlp/blob/master/assets/result1.png)
 </br>
-![](https://github.com/anaramirli/snlp/blob/master/assets/result1.png)
+![](https://github.com/anaramirli/snlp/blob/master/assets/result2.png)
 
 ## About the codes 
 
