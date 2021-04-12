@@ -1,4 +1,4 @@
-This project was part of SS20 Statistical Natural Language Processing course at Universität des Saarlandes implemented by:
+This project was a part of SS20 Statistical Natural Language Processing course at Universität des Saarlandes. It has been implemented by:
 - Ga Yeon Roß, gayeonross1@gmail.com
 - Anar Amirli, s8aramir@stud.uni-saarland.de
 
