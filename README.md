@@ -1,6 +1,6 @@
 This project was a part of SS20 Statistical Natural Language Processing course at Universität des Saarlandes. It has been implemented by:
-- Ga Yeon Roß, gayeonross1@gmail.com
-- Anar Amirli, anaramirli@gmail.com
+- Ga Yeon Roß
+- Anar Amirli
 
 # baseline document retrieval
 In this project, we did the comparison of baseline document retrieval model with a more advanced re-ranker method, Okapi BM25. Here, we not only compared these two document retrieval methods, but also examined how the result of the BM25 model can be improved and how it’s performance changes upon different corpus types.
